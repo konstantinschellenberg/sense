@@ -12,7 +12,7 @@ from sense import model
 import scipy.stats
 from scipy.optimize import minimize
 import pdb
-
+import pylab
 
 # Helper functions for statistical parameters
 #--------------------------------------------
@@ -76,8 +76,8 @@ def read_data(path, file_name, extension, field, path_agro, file_name_agro, exte
     field_data = df.filter(like=field)
 
     # filter for relativorbit
-    field_data_orbit = filter_relativorbit(field_data, field, 95, 168)
-    # field_data = field_data_orbit
+    field_data_orbit = filter_relativorbit(field_data, field, 168)
+    field_data = field_data_orbit
 
     # get rid of NaN values
     parameter_nan = 'LAI'
@@ -85,7 +85,7 @@ def read_data(path, file_name, extension, field, path_agro, file_name_agro, exte
 
     # available auxiliary data
     theta_field = np.deg2rad(field_data.filter(like='theta'))
-    # theta_field[:] = 45
+    # theta_field[:] = np.deg2rad(35)
     sm_field = field_data.filter(like='SM')
     height_field = field_data.filter(like='Height')/100
     lai_field = field_data.filter(like='LAI')
@@ -148,6 +148,7 @@ def data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_f
 # storage information
 path = '/media/tweiss/Daten/new_data'
 file_name = 'multi_10_neu' # theta needs to be changed to for norm multi
+# file_name = 'multi_norm_10_neu' # theta needs to be changed to for norm multi
 extension = '.csv'
 
 path_agro = '/media/nas_data/2017_MNI_campaign/field_data/meteodata/agrarmeteorological_station'
@@ -234,16 +235,16 @@ canopy = 'turbid_isotropic'
 models = {'surface': surface, 'canopy': canopy}
 
 opt_mod = 'time invariant'
-# opt_mod = 'time variant'
+opt_mod = 'time variant'
 
-surface_list = ['Oh92', 'Oh04', 'Dubois95', 'WaterCloud']
+surface_list = ['Oh92', 'WaterCloud']
 canopy_list = ['turbid_isotropic', 'water_cloud']
 
-fig, ax = plt.subplots(figsize=(20, 10))
+fig, ax = plt.subplots(figsize=(14, 7))
 # plt.title('Winter Wheat')
-plt.ylabel('Backscatter [dB]', fontsize=15)
-plt.xlabel('Date', fontsize=15)
-plt.tick_params(labelsize=12)
+plt.ylabel('Backscatter [dB]', fontsize=18)
+plt.xlabel('Date', fontsize=18)
+plt.tick_params(labelsize=15)
 ax.set_ylim([-22.5,-7.5])
 
 colormaps = ['Greens', 'Purples', 'Blues', 'Oranges', 'Reds', 'Greys', 'pink', 'bone']
@@ -339,12 +340,12 @@ for k in surface_list:
                     guess = [0.1]
                     bounds = [(0.,2)]
                 elif surface == 'WaterCloud' and canopy == 'water_cloud':
-                    # var_opt = ['A_vv', 'B_vv', 'A_hv', 'B_hv', 'C_vv', 'D_vv', 'C_hv', 'D_hv']
-                    # guess = [A_vv, B_vv, A_hv, B_hv, C_vv, D_vv, C_hv, D_hv]
-                    # bounds = [(0.,1), (guess[1]*0.55, guess[1]*1.55), (0.,1), (guess[3]*0.75, guess[3]*1.25), (-20.,-1.), (1.,20.), (-20.,-1.), (1.,20.)]
-                    var_opt = ['C_vv', 'D_vv', 'C_hv', 'D_hv']
-                    guess = [C_vv, D_vv, C_hv, D_hv]
-                    bounds = [(-20.,-1.), (1.,20.), (-20.,-1.), (1.,20.)]
+                    var_opt = ['A_vv', 'B_vv', 'A_hv', 'B_hv', 'C_vv', 'D_vv', 'C_hv', 'D_hv']
+                    guess = [A_vv, B_vv, A_hv, B_hv, C_vv, D_vv, C_hv, D_hv]
+                    bounds = [(0.,1), (guess[1]*0.55, guess[1]*1.55), (0.,1), (guess[3]*0.75, guess[3]*1.25), (-20.,-1.), (1.,20.), (-20.,-1.), (1.,20.)]
+                    # var_opt = ['C_vv', 'D_vv', 'C_hv', 'D_hv']
+                    # guess = [C_vv, D_vv, C_hv, D_hv]
+                    # bounds = [(-20.,-1.), (1.,20.), (-20.,-1.), (1.,20.)]
                 elif canopy == 'water_cloud':
                     var_opt = ['A_vv', 'B_vv', 'A_hv', 'B_hv']
                     guess = [A_vv, B_vv, A_hv, B_hv]
@@ -429,18 +430,102 @@ for k in surface_list:
             colors = 'purple'
 
 
-        if kk == 'turbid_isotropic':
+        if S.models['surface'] == 'Oh92' and S.models['canopy'] == 'turbid_isotropic':
+            ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color='0', marker='s', label='Oh92'+ ' + ' +  'SSRT' + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R$^2$: ' + str(r_value)[0:4], linestyle='--')
+            # pdb.set_trace()
 
-            ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color=colors, marker='s', linestyle='dashed', label=S.models['surface']+ ' + ' +  S.models['canopy'] + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R2: ' + str(r_value)[0:4] + ' ' + str(r_value1)[0:4])
-        else:
-            ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color=colors, marker='s', label=S.models['surface']+ ' + ' +  S.models['canopy'] + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R2: ' + str(r_value)[0:4] + ' ' + str(r_value1)[0:4])
+        elif S.models['surface'] == 'Oh92' and S.models['canopy'] == 'water_cloud':
+            ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color='0.2', marker='s', label='Oh92'+ ' + ' +  'WCM' + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R$^2$: ' + str(r_value)[0:4], linestyle='--')
+
+        elif S.models['surface'] == 'WaterCloud' and S.models['canopy'] == 'turbid_isotropic':
+            ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color='0.4', marker='s', label='WCM'+ ' + ' +  'SSRT' + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R$^2$: ' + str(r_value)[0:4], linestyle='--')
+        elif S.models['surface'] == 'WaterCloud' and S.models['canopy'] == 'water_cloud':
+            ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color='0.6', marker='s', label='WCM'+ ' + ' +  'WCM' + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R$^2$: ' + str(r_value)[0:4], linestyle='--')
+
+        # if kk == 'turbid_isotropic':
+
+        #     ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color=colors, marker='s', linestyle='dashed', label=S.models['surface']+ ' + ' +  S.models['canopy'] + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R2: ' + str(r_value)[0:4] + ' ' + str(r_value1)[0:4])
+        # else:
+        #     ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color=colors, marker='s', label=S.models['surface']+ ' + ' +  S.models['canopy'] + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R2: ' + str(r_value)[0:4] + ' ' + str(r_value1)[0:4])
 
         j = j+1
-ax.plot(10*np.log10(pol_field), 'ks-', label='Sentinel-1 Pol: ' + pol, linewidth=3)
-plt.legend()
+
+# pdb.set_trace()
+
+ax.plot(10*np.log10(pol_field), 'ks-', label='Sentinel-1 Pol: ' + pol, linewidth=3, color='darkblue')
+
+
+
+
+ax.set_xlim(['2017-03-24', '2017-07-15'])
+
+ax.grid(linestyle='-', linewidth=1)
+ax.grid(b=True, which='minor', linestyle='--', linewidth=0.5)
+ax.grid(linestyle='-', linewidth=1)
+
+days = mdates.DayLocator()
+ax.xaxis.set_minor_locator(days)
+
+months = MonthLocator()
+ax.xaxis.set_major_locator(months)
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b %Y"))
+
+
+ax1 = ax.twinx()
+ax1.set_ylim([-22.5,-7.5])
+pylab.setp(ax1.get_yticklabels(), visible=False)
+# ax1.plot(pol_field[field_data[field]['relativeorbit']==44].index,10*np.log10(pol_field[field_data[field]['relativeorbit']==44]).values.flatten() , 'ys', label='Ascending relorbit 44, theta: 33°')
+
+
+# ax1.plot(pol_field[field_data[field]['relativeorbit']==117].index,10*np.log10(pol_field[field_data[field]['relativeorbit']==117]).values.flatten() , 'ms', label='Ascending relorbit 117, theta: 42°')
+
+
+# ax1.plot(pol_field[field_data[field]['relativeorbit']==95].index,10*np.log10(pol_field[field_data[field]['relativeorbit']==95]).values.flatten() , 'rs', label='Descending relorbit 95, theta: 44°')
+
+
+ax1.plot(pol_field[field_data[field]['relativeorbit']==168].index,10*np.log10(pol_field[field_data[field]['relativeorbit']==168]).values.flatten() , 'gs', label='Descending relorbit 168, theta: 36°')
+
+ax.legend(loc=3, prop={'size':12})
+ax1.legend(loc=4, prop={'size':12})
 plt.title('Winter Wheat 508')
-plt.savefig('/media/tweiss/Daten/plots/vv_'+opt_mod)
+plt.savefig('/media/tweiss/Daten/plots/plot/vv_'+opt_mod+'_168')
 pdb.set_trace()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 colors = ['gs-', 'rs-', ]
 
