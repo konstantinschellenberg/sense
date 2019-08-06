@@ -147,7 +147,7 @@ def data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_f
 #-----------------------------------------------------------------
 # storage information
 path = '/media/tweiss/Daten/new_data'
-file_name = 'multi_10_neu' # theta needs to be changed to for norm multi
+file_name = 'multi10' # theta needs to be changed to for norm multi
 extension = '.csv'
 
 path_agro = '/media/nas_data/2017_MNI_campaign/field_data/meteodata/agrarmeteorological_station'
@@ -415,6 +415,8 @@ for k in surface_list:
         # ax.plot(date, 10*np.log10(S.__dict__['s0gcg'][pol[::-1]]), 'ys-', label=pol+' s0gcg')
 
         mask = ~np.isnan(pol_field.values.flatten()) & ~np.isnan(S.__dict__['stot'][pol[::-1]])
+        print(k)
+        print(kk)
         slope, intercept, r_value, p_value, std_err = scipy.stats.linregress((pol_field.values.flatten()[mask]), (S.__dict__['stot'][pol[::-1]][mask]))
         slope1, intercept1, r_value1, p_value1, std_err1 = scipy.stats.linregress(10*np.log10(pol_field.values.flatten())[mask], 10*np.log10(S.__dict__['stot'][pol[::-1]])[mask])
         rmse = rmse_prediction(10*np.log10(pol_field.values.flatten()), 10*np.log10(S.__dict__['stot'][pol[::-1]]))

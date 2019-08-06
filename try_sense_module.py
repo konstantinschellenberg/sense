@@ -98,7 +98,7 @@ def read_data(path, file_name, extension, field, path_agro, file_name_agro, exte
 #-----------------------------------------------------------------
 # storage information
 path = '/media/tweiss/Daten/new_data'
-file_name = 'multi_10_neu' # theta needs to be changed to for norm multi
+file_name = 'multi10' # theta needs to be changed to for norm multi
 extension = '.csv'
 
 path_agro = '/media/nas_data/2017_MNI_campaign/field_data/meteodata/agrarmeteorological_station'
@@ -116,11 +116,11 @@ df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, 
 #-----------------------------------------------------------------
 ## Choose models
 #---------------
-# surface = 'Oh92'
+surface = 'Oh92'
 # surface = 'Oh04'
 # surface = 'Dubois95'
 # surface = 'WaterCloud'
-surface = 'I2EM'
+# surface = 'I2EM'
 # canopy = 'turbid_isotropic'
 # canopy = 'turbid_rayleigh'
 canopy = 'water_cloud'
