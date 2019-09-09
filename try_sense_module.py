@@ -119,9 +119,9 @@ df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, 
 surface = 'Oh92'
 # surface = 'Oh04'
 # surface = 'Dubois95'
-# surface = 'WaterCloud'
+surface = 'WaterCloud'
 # surface = 'I2EM'
-# canopy = 'turbid_isotropic'
+canopy = 'turbid_isotropic'
 # canopy = 'turbid_rayleigh'
 canopy = 'water_cloud'
 
@@ -149,9 +149,9 @@ clay = 0.08
 sand = 0.12
 bulk = 1.5
 # vh 508
-s = 0.0105
+# s = 0.0105
 # vv 508
-# s = 0.006
+s = 0.006
 
 #### Oh94
 #----------------
@@ -161,7 +161,7 @@ bulk = 1.5
 # vh 508
 # s = 0.0105
 # vv 508
-s = 0.0015
+# s = 0.0015
 
 
 #### Dubois
@@ -251,9 +251,9 @@ for i in range(len(pol_field.values.flatten())-n+1):
     # guess = [0.01, 0.1, 0.01]
     # bounds = [(0.001,0.03),(0.,2.5),(0.001,0.1)]
 
-    var_opt = ['C_hv', 'D_hv']
-    guess = [-13, 14]
-    bounds = [(-200.,100.),(-200.,400.)]
+    var_opt = ['C_vv', 'D_vv', 'coef']
+    guess = [-13, 14, 0.1]
+    bounds = [(-200.,100.),(-200.,400.), (0.00,5)]
 
     var_opt = ['A_vv', 'B_vv']
 
@@ -261,7 +261,7 @@ for i in range(len(pol_field.values.flatten())-n+1):
         guess = [res.x[0], res.x[1]]
     except:
         guess = [0.005, 0.09]
-    # bounds = [(0.000,5.),(0.001,5.)]
+    bounds = [(0.000,5.),(0.001,5.)]
     bounds = [(guess[0]*0.75, guess[0]*1.25), (guess[1]*0.75, guess[1]*1.25)]
     bounds = [(guess[0]*0.9, guess[0]*1.1), (guess[1]*0.75, guess[1]*1.25)]
     # var_opt = ['coef', 'omega']
@@ -310,9 +310,10 @@ field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field,
 
 # C_vv = np.array([el[0] for el in aaa])
 # D_vv = np.array([el[1] for el in aaa])
+# coef = np.array([el[2] for el in aaa])
 
-C_hv = np.array([el[0] for el in aaa])
-D_hv = np.array([el[1] for el in aaa])
+# C_hv = np.array([el[0] for el in aaa])
+# D_hv = np.array([el[1] for el in aaa])
 
 A_vv = np.array([el[0] for el in aaa])
 B_vv = np.array([el[1] for el in aaa])
@@ -474,11 +475,34 @@ slope1, intercept1, r_value1, p_value1, std_err1 = scipy.stats.linregress(10*np.
 rmse = rmse_prediction(10*np.log10(pol_field.values.flatten()), 10*np.log10(S.__dict__['stot'][pol[::-1]]))
 
 plt.title('Winter Wheat, R2 = ' + str(r_value) + ' RMSE = ' + str(rmse))
-plt.savefig('/media/tweiss/Daten/plots/plot_'+field+'_'+pol+'_'+file_name+'_'+S.models['surface']+'_'+S.models['canopy'])
+plt.savefig('/media/tweiss/Daten/plots/neu/plot_'+field+'_'+pol+'_'+file_name+'_'+S.models['surface']+'_'+S.models['canopy'])
 plt.close()
 
 
-pdb.set_trace()
+# pdb.set_trace()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ke = np.array([ 2.06326886,  1.91916714,  1.77367103,  1.63778107,  1.528702  ,
 #         1.46604885,  1.46253485,  1.51355678,  1.60051594,  1.69869197,
@@ -555,7 +579,7 @@ plt.plot(x,x)
 www = rmse_prediction(aaa, bbb)
 # slope, intercept, r_value, p_value, std_err = linregress(aaa[~np.isnan(bbb)], bbb[~np.isnan(bbb)])
 plt.title(pol+' ' + field + ' ' + surface + ' ' + canopy + 'R2='+str(r_value)+' RMSE='+str(www))
-plt.savefig('/media/tweiss/Daten/plots/scatterplot_fertig_'+field+'_'+pol+'_'+file_name+'_'+S.models['surface']+'_'+S.models['canopy'])
+plt.savefig('/media/tweiss/Daten/plots/neu/scatterplot_fertig_'+field+'_'+pol+'_'+file_name+'_'+S.models['surface']+'_'+S.models['canopy'])
 pdb.set_trace()
 
 

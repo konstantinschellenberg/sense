@@ -94,12 +94,13 @@ class I2EM(SurfaceScatter):
         self.xpol = kwargs.get('xpol', True)
 
         # do initializations for backscatter calculations
-        # self._init_hlp()
-        # self.init_model()
+        self._init_hlp()
+        self.init_model()
         # pdb.set_trace()
 
         # calculate the actual backscattering coefficients
         self._calc_sigma_backscatter()
+
 
     def init_model(self):
         """
@@ -197,6 +198,8 @@ class I2EM(SurfaceScatter):
                 if self.xpol:
                     hv = self._i2em_cross()
                     self.hv.append(hv)
+
+
         else:
             self._init_hlp()
             self.init_model()

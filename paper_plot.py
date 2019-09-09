@@ -117,7 +117,7 @@ def solve_fun(VALS):
     return S.__dict__['stot'][pol[::-1]]
 
 def fun_opt(VALS):
-    # pdb.set_trace()
+
 
     # return(10.*np.log10(np.nansum(np.square(solve_fun(VALS)-dic['pol_value']))))
     return(np.nansum(np.square(solve_fun(VALS)-dic['pol_value'])))
@@ -155,96 +155,70 @@ file_name_agro = 'Eichenried_01012017_31122017_hourly'
 extension_agro = '.csv'
 
 field = '508_high'
-pol = 'vv'
+field_plot = ['508_high', '508_low', '508_med']
+pol = 'vh'
+
+# output path
+plot_output_path = '/media/tweiss/Daten/plots/neu/'
 
 df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro)
-#-----------------------------------------------------------------
-
-### Settings SenSe module ###
-#-----------------------------------------------------------------
-## Choose models
-#---------------
-surface = 'Oh92'
-# surface = 'Oh04'
-# surface = 'Dubois95'
-# surface = 'WaterCloud'
-# surface = 'I2EM'
-# canopy = 'turbid_isotropic'
-# canopy = 'turbid_rayleigh'
-canopy = 'water_cloud'
-
-models = {'surface': surface, 'canopy': canopy}
-
-## Parameters
-#----------------
-# anyway
-freq = 5.405
-
-### Surface
-# Oh92 (freq, clay, sand, bulk, s, theta, mv)
-# Oh04 (freq, s, theta, mv)
-# Dubois95 (freq, clay, sand, bulk, s, theta, mv)
-# Water Cloud (C, D)
-#-------------------------------------------------
-clay = 0.08
-sand = 0.12
-bulk = 1.5
-# s = 0.0105
-s = 0.007
-
-C_hh = 0
-D_hh = 0
-C_hv = -22.5
-D_hv = 4
-C_vv = -14.609339
-D_vv = 12.884086
-
-### Canopy
-# Water Cloud (A, B, V1, V2, theta)
-# SSRT (coef, omega, theta)
-#-----------------------------------
-A_hh = 0
-B_hh = 0
-A_hv = 0.029
-B_hv = 0.0013
-A_vv = 0.0029
-B_vv = 0.13
-V1 = lai_field.values.flatten()
-V2 = V1 # initialize in surface model
-coef = 1.
-omega = 0.027
-# omega = 0.0115
-# IEM
-l = 0.01
 #-----------------------------------------------------------------
 
 ### Run SenSe module
 #-----------------------------------------------------------------
 #### Choose models
 #-----------------
-# surface = 'Oh92'
-# surface = 'Oh04'
-surface = 'Dubois95'
-# surface = 'WaterCloud'
-surface = 'I2EM'
-canopy = 'turbid_isotropic'
-# canopy = 'turbid_rayleigh'
-# canopy = 'water_cloud'
 
-models = {'surface': surface, 'canopy': canopy}
-
-opt_mod = 'time invariant'
-# opt_mod = 'time variant'
-
-surface_list = ['Oh92', 'Oh04', 'Dubois95', 'WaterCloud']
+surface_list = ['Oh92', 'Oh04', 'Dubois95', 'WaterCloud', 'I2EM']
 canopy_list = ['turbid_isotropic', 'water_cloud']
 
-fig, ax = plt.subplots(figsize=(20, 10))
+surface_list = ['Oh92']
+surface_list = ['Oh04']
+# surface_list = ['Dubois95']
+# surface_list = ['WaterCloud']
+# surface_list = ['I2EM']
+canopy_list = ['turbid_isotropic']
+# canopy_list = ['water_cloud']
+
+### option for time invariant or variant calibration of parameter
+#-------------------------------
+opt_mod = 'time invariant'
+opt_mod = 'time variant'
+#---------------------------
+
+### plot option: "single" or "all" modelcombination
+#------------------------------
+plot = 'single'
+# plot = 'all'
+#------------------------------
+
+### plot option scatterplot or not
+#-------------------------------
+# style = 'scatterplot'
+style = ''
+
+### plot option for scatterplot single ESU
+#------------------------------------
+# style_2 = 'scatterplot_single_ESU'
+style_2 = ''
+#-----------------------------------
+
+# Initialize plot settings
+#---------------------------
+if style == 'scatterplot':
+    fig, ax = plt.subplots(figsize=(10, 10))
+else:
+    fig, ax = plt.subplots(figsize=(20, 10))
 # plt.title('Winter Wheat')
 plt.ylabel('Backscatter [dB]', fontsize=15)
 plt.xlabel('Date', fontsize=15)
 plt.tick_params(labelsize=12)
-ax.set_ylim([-22.5,-7.5])
+
+
+if pol == 'vv':
+    ax.set_ylim([-22.5,-7.5])
+elif pol == 'vh':
+    ax.set_ylim([-30,-15])
 
 colormaps = ['Greens', 'Purples', 'Blues', 'Oranges', 'Reds', 'Greys', 'pink', 'bone']
 j = 0
@@ -256,16 +230,18 @@ for k in surface_list:
 
     for kk in canopy_list:
         df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro)
+        freq = 5.405
         clay = 0.08
         sand = 0.12
         bulk = 1.5
-        # s = 0.0105
-        s = 0.007
+        s = 0.0105 # vv
+        s = 0.0115
+        # s = 0.009 # vh ?????
 
         C_hh = 0
         D_hh = 0
         C_hv = -22.5
-        D_hv = 4
+        D_hv = 3.2
         C_vv = -14.609339
         D_vv = 12.884086
 
@@ -282,8 +258,8 @@ for k in surface_list:
         V1 = lai_field.values.flatten()
         V2 = V1 # initialize in surface model
         coef = 1.
-        omega = 0.027
-        # omega = 0.0115
+        omega = 0.027 # vv
+        omega = 0.015 # vh
         # IEM
         l = 0.01
 
@@ -302,7 +278,7 @@ for k in surface_list:
             if canopy == 'turbid_isotropic':
                 var_opt = ['coef']
                 guess = [2.]
-                bounds = [(0.,5.5)]
+                bounds = [(0.001,5.5)]
             elif surface == 'WaterCloud' and canopy == 'water_cloud':
                 var_opt = ['A_vv', 'B_vv', 'A_hv', 'B_hv', 'C_vv', 'D_vv', 'C_hv', 'D_hv']
                 guess = [A_vv, B_vv, A_hv, B_hv, C_vv, D_vv, C_hv, D_hv]
@@ -322,6 +298,7 @@ for k in surface_list:
         if opt_mod == 'time variant':
             aaa = [[],[],[],[],[],[],[],[],[],[],[],[]]
             n=7
+            n=7
 
             for i in range(len(pol_field.values.flatten())-n+1):
 
@@ -332,7 +309,7 @@ for k in surface_list:
 
                 if canopy == 'turbid_isotropic' and surface == 'WaterCloud':
                     var_opt = ['coef', 'C_vv', 'D_vv', 'C_hv', 'D_hv']
-                    guess = [1., C_vv, D_vv, C_hv, D_hv]
+                    guess = [0.01, C_vv, D_vv, C_hv, D_hv]
                     bounds = [(0.1,5.5), (-20.,-1.), (1.,20.), (-20.,-1.), (1.,20.)]
                 elif canopy == 'turbid_isotropic':
                     var_opt = ['coef']
@@ -348,7 +325,7 @@ for k in surface_list:
                 elif canopy == 'water_cloud':
                     var_opt = ['A_vv', 'B_vv', 'A_hv', 'B_hv']
                     guess = [A_vv, B_vv, A_hv, B_hv]
-                    bounds = [(0.,1), (0.,1), (0.,1), (0.,1)]
+                    bounds = [(0.,1), (0.,1), (0.00001,1), (0.00001,1)]
 
                 # var_opt = ['omega']
                 # guess = [0.1]
@@ -415,8 +392,6 @@ for k in surface_list:
         # ax.plot(date, 10*np.log10(S.__dict__['s0gcg'][pol[::-1]]), 'ys-', label=pol+' s0gcg')
 
         mask = ~np.isnan(pol_field.values.flatten()) & ~np.isnan(S.__dict__['stot'][pol[::-1]])
-        print(k)
-        print(kk)
         slope, intercept, r_value, p_value, std_err = scipy.stats.linregress((pol_field.values.flatten()[mask]), (S.__dict__['stot'][pol[::-1]][mask]))
         slope1, intercept1, r_value1, p_value1, std_err1 = scipy.stats.linregress(10*np.log10(pol_field.values.flatten())[mask], 10*np.log10(S.__dict__['stot'][pol[::-1]])[mask])
         rmse = rmse_prediction(10*np.log10(pol_field.values.flatten()), 10*np.log10(S.__dict__['stot'][pol[::-1]]))
@@ -429,20 +404,235 @@ for k in surface_list:
             colors = 'orange'
         elif k == 'WaterCloud':
             colors = 'purple'
+        elif k == 'I2EM':
+            colors = 'green'
+
+        if plot == 'all':
+            if kk == 'turbid_isotropic':
+
+                ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color=colors, marker='s', linestyle='dashed', label=S.models['surface']+ ' + ' +  S.models['canopy'] + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R2: ' + str(r_value)[0:4] + ' ' + str(r_value1)[0:4])
+            else:
+                ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color=colors, marker='s', label=S.models['surface']+ ' + ' +  S.models['canopy'] + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R2: ' + str(r_value)[0:4] + ' ' + str(r_value1)[0:4])
+
+        if plot == 'single':
+            if style == 'scatterplot':
+                if pol == 'vv':
+                    ax.set_xlim([-22.5,-7.5])
+                elif pol == 'vh':
+                    ax.set_xlim([-30,-15])
+
+                if style_2 == 'scatterplot_single_ESU':
+                    ax.plot(10*np.log10(pol_field.values.flatten()),10*np.log10(S.__dict__['stot'][pol[::-1]]), 'rs', label=field)
+
+                    x = 10*np.log10(pol_field.values.flatten())
+                    y = 10*np.log10(S.__dict__['stot'][pol[::-1]])
+
+                    lower_position = np.nanargmin(x)
+                    upper_position = np.nanargmax(x)
+
+                    ax.plot(np.array((x[lower_position],x[upper_position])),np.array((y[lower_position],y[upper_position])), '--r')
 
 
-        if kk == 'turbid_isotropic':
+                else:
+                    aa = []
+                    bb = []
+                    # cc = []
 
-            ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color=colors, marker='s', linestyle='dashed', label=S.models['surface']+ ' + ' +  S.models['canopy'] + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R2: ' + str(r_value)[0:4] + ' ' + str(r_value1)[0:4])
-        else:
-            ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color=colors, marker='s', label=S.models['surface']+ ' + ' +  S.models['canopy'] + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R2: ' + str(r_value)[0:4] + ' ' + str(r_value1)[0:4])
+                    # field_plot = ['508_high', '508_low', '508_med']
+                    jj = 0
+                    colors = ['ks', 'ys', 'ms', 'rs']
+
+                    for field in field_plot:
+                        df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro)
+                        field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field, vh_field, pol_field = data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_field, vwc_field, pol)
+
+                        soil = Soil(mv=sm_field.values.flatten(), C_hh=np.array(C_hh), C_vv=np.array(C_vv), D_hh=np.array(D_hh), D_vv=np.array(D_vv), C_hv=np.array(C_hv), D_hv=np.array(D_hv), s=s, clay=clay, sand=sand, f=freq, bulk=bulk, l=l)
+
+                        can = OneLayer(canopy=canopy, ke_h=ke, ke_v=ke, d=height_field.values.flatten(), ks_h = omega*ke, ks_v = omega*ke, V1=np.array(V1), V2=np.array(V2), A_hh=np.array(A_hh), B_hh=np.array(B_hh), A_vv=np.array(A_vv), B_vv=np.array(B_vv), A_hv=np.array(A_hv), B_hv=np.array(B_hv))
+
+                        S = model.RTModel(surface=soil, canopy=can, models=models, theta=theta_field.values.flatten(), freq=freq)
+                        S.sigma0()
+
+                        ax.plot(10*np.log10(pol_field.values.flatten()),10*np.log10(S.__dict__['stot'][pol[::-1]]), colors[jj], label=field)
+
+                        slope, intercept, r_value, p_value, std_err = linregress(10*np.log10(pol_field.values.flatten())[~np.isnan(10*np.log10(S.__dict__['stot'][pol[::-1]]))], 10*np.log10(S.__dict__['stot'][pol[::-1]])[~np.isnan(10*np.log10(S.__dict__['stot'][pol[::-1]]))])
+                        line = slope * 10*np.log10(S.__dict__['stot'][pol[::-1]]) + intercept
+
+                        # ax.plot(10*np.log10(S.__dict__['stot'][pol[::-1]]), line)
+
+                        lower_position = np.nanargmin(line)
+                        upper_position = np.nanargmax(line)
+
+                        ax.plot(np.array((10*np.log10(S.__dict__['stot'][pol[::-1]])[lower_position],10*np.log10(S.__dict__['stot'][pol[::-1]])[upper_position])),np.array((line[lower_position],line[upper_position])), '--'+colors[jj][0])
+
+                        aa = np.append(aa, 10*np.log10(pol_field.values.flatten()))
+                        bb = np.append(bb, 10*np.log10(S.__dict__['stot'][pol[::-1]]))
+                        jj = jj+1
+            else:
+                ax.plot(date, 10*np.log10(S.__dict__['stot'][pol[::-1]]), color='orange', marker='s', label=S.models['surface']+ ' + ' +  S.models['canopy'] + ' Pol: ' + pol + '; RMSE: ' + str(rmse)[0:4] + '; R2: ' + str(r_value)[0:4] + ' ' + str(r_value1)[0:4])
+                ax.plot(date, 10*np.log10(S.__dict__['s0g'][pol[::-1]]), color='red', marker='s', label='Ground contribution')
+                ax.plot(date, 10*np.log10(S.__dict__['s0c'][pol[::-1]]), color='green', marker='s', label='Canopy contribution')
 
         j = j+1
-ax.plot(10*np.log10(pol_field), 'ks-', label='Sentinel-1 Pol: ' + pol, linewidth=3)
-plt.legend()
-plt.title('Winter Wheat 508')
-plt.savefig('/media/tweiss/Daten/plots/vv_'+opt_mod)
+
+
+if style == 'scatterplot':
+    pass
+else:
+    ax.plot(10*np.log10(pol_field), 'ks-', label='Sentinel-1 Pol: ' + pol, linewidth=3)
+    plt.legend()
+    plt.title(field)
+
+if plot == 'all':
+    plt.savefig(plot_output_path+pol+'_all_'+opt_mod)
+
+if plot == 'single':
+    if style == 'scatterplot':
+        plt.ylabel(surface + ' ' + canopy + ' [dB]')
+        plt.xlabel('Sentinel-1 [dB]')
+        plt.legend()
+        x = np.linspace(np.min(10*np.log10(pol_field.values.flatten()))-2, np.max(10*np.log10(pol_field.values.flatten()))+2, 16)
+        ax.plot(x,x)
+        if style_2 == 'scatterplot_single_ESU':
+            www = rmse_prediction(10*np.log10(pol_field).values.flatten(), 10*np.log10(S.__dict__['stot'][pol[::-1]]))
+            plt.title(pol+' ' + field + ' ' + surface + ' ' + canopy + 'R2='+str(r_value)+' RMSE='+str(www))
+            plt.savefig(plot_output_path+'scatterplot_fertig_single_'+field+'_'+pol+'_'+file_name+'_'+S.models['surface']+'_'+S.models['canopy'])
+        else:
+            www = rmse_prediction(aa, bb)
+            # slope, intercept, r_value, p_value, std_err = linregress(aaa[~np.isnan(bbb)], bbb[~np.isnan(bbb)])
+            plt.title(pol+' ' + field + ' ' + surface + ' ' + canopy + 'R2='+str(r_value)+' RMSE='+str(www))
+            plt.savefig(plot_output_path+'scatterplot_fertig_'+field+'_'+pol+'_'+file_name+'_'+S.models['surface']+'_'+S.models['canopy'])
+    else:
+        plt.savefig(plot_output_path+pol+'_single_'+opt_mod+'_'+S.models['surface']+'_'+S.models['canopy'])
+
+
 pdb.set_trace()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 colors = ['gs-', 'rs-', ]
 
@@ -673,43 +863,45 @@ pdb.set_trace()
 #         17.71884858,  17.59050298,  20.        ,  20.        ,
 #         20.        ,  18.39475902,  18.06682578,  12.51381333,
 #         13.69266562,  15.42614678,  11.33772659,  11.57183062])
-aaa = []
-bbb = []
-ccc = []
-
-field_plot = ['508_high', '508_low', '508_med']
-i = 0
-colors = ['ks', 'ys', 'ms', 'rs']
-
-for field in field_plot:
-    df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro)
-    field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field, vh_field, pol_field = data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_field, vwc_field, pol)
-
-    soil = Soil(mv=sm_field.values.flatten(), C_hh=C_hh, C_vv=C_vv, D_hh=D_hh, D_vv=D_vv, C_hv=C_hv, D_hv=D_hv, V2=lai_field.values.flatten(), s=s, clay=clay, sand=sand, f=freq, bulk=bulk, l=l)
 
 
-    can = OneLayer(canopy=canopy, ke_h=ke, ke_v=ke, d=height_field.values.flatten(), ks_h = omega*ke, ks_v = omega*ke, V1=lai_field.values.flatten(), V2=lai_field.values.flatten(), A_hh=A_hh, B_hh=B_hh, A_vv=A_vv, B_vv=B_vv, A_hv=A_hv, B_hv=B_hv)
-
-    S = model.RTModel(surface=soil, canopy=can, models=models, theta=theta_field.values.flatten(), freq=freq)
-    S.sigma0()
-
-    plt.plot(10*np.log10(pol_field.values.flatten()),10*np.log10(S.__dict__['stot'][pol[::-1]]), colors[i], label=field)
-
-    aaa = np.append(aaa, 10*np.log10(pol_field.values.flatten()))
-    bbb = np.append(bbb, 10*np.log10(S.__dict__['stot'][pol[::-1]]))
-    i = i+1
 
 
-plt.ylabel(surface + ' ' + canopy + ' [dB]')
-plt.xlabel('Sentinel-1 [dB]')
-plt.legend()
-x = np.linspace(np.min(10*np.log10(pol_field.values.flatten()))-2, np.max(10*np.log10(pol_field.values.flatten()))+2, 16)
-plt.plot(x,x)
-www = rmse_prediction(aaa, bbb)
-# slope, intercept, r_value, p_value, std_err = linregress(aaa[~np.isnan(bbb)], bbb[~np.isnan(bbb)])
-plt.title(pol+' ' + field + ' ' + surface + ' ' + canopy + 'R2='+str(r_value)+' RMSE='+str(www))
-plt.savefig('/media/tweiss/Daten/plots/scatterplot_fertig_'+field+'_'+pol+'_'+file_name+'_'+S.models['surface']+'_'+S.models['canopy'])
-pdb.set_trace()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
