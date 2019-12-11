@@ -326,7 +326,7 @@ class Ground(object):
             self.rt_s = Dubois95(self.S.eps, self.S.ks, self.theta, lam=f2lam(self.freq))
         elif RT_s == 'I2EM':
             # assert False, 'Implementation not completed'
-            self.rt_s = I2EM(self.freq, self.S.eps, self.S.s, self.S.l, self.theta, xpol=True, auto=False)
+            self.rt_s = I2EM(self.freq, self.S.eps, self.S.s, self.S.l, self.theta, xpol=False, auto=False)
         elif RT_s == 'WaterCloud':
             if (self.S.C_hh is None) or (self.S.D_hh is None) or (self.S.C_vv is None) or (self.S.D_vv is None) or (self.S.C_hv is None) or (self.S.D_hv is None):
                 assert False, 'Empirical surface parameters for Water Cloud model not specified!'
@@ -428,8 +428,8 @@ class Ground(object):
         s_vv = self.rt_s.vv*t_v*t_v
 
         if self.RT_s == 'I2EM':
-            # s_hv = None
-            s_hv = self.rt_s.hv*t_v*t_h
+            s_hv = None
+            # s_hv = self.rt_s.hv*t_v*t_h
         elif self.rt_s.hv is None:
             s_hv = None
         else:
