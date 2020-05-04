@@ -1,28 +1,17 @@
 
 import numpy as np
-
-
 from sense.canopy import OneLayer
 from sense.soil import Soil
 from sense import model
-
+import pdb
 
 ### Optimization ###
 #---------------------
 
-def solve_fun(VALS, var_opt, dic, models, pol):
-
-    for i in range(len(var_opt)):
-        dic[var_opt[i]] = VALS[i]
+def run_model(dic, models):
 
     ke = dic['coef'] * np.sqrt(dic['lai'])
-    # ke = dic['coef'] * np.sqrt(dic['lai']*dic['vwcpro']/100)
-    # # ke = dic['coef'] * np.sqrt(dic['lai'])*(dic['vwcpro']/100)**4
-    # ke = dic['coef'] * (dic['vwcpro']/100)**3
-    # ke = dic['coef'] * (dic['vwcpro']/100)**3 * dic['d']
-    # # ke = dic['coef'] * np.sqrt(dic['vwc'])
-    # ke = dic['coef'] * np.sqrt(dic['vwc']/dic['d'])
-
+    # ke = dic['coef'] * np.sqrt(dic['vwc'])
     # ke=1
     dic['ke'] = ke
 
@@ -34,13 +23,26 @@ def solve_fun(VALS, var_opt, dic, models, pol):
 
     S = model.RTModel(surface=soil, canopy=can, models=models, theta=dic['theta'], freq=dic['f'])
     S.sigma0()
+    return S.__dict__['stot']['vv'[::-1]], S.__dict__['stot']['vh'[::-1]]
 
-    return S.__dict__['stot'][pol[::-1]]
+
+def solve_fun(VALS, var_opt, dic, models):
+
+    for i in range(len(var_opt)):
+        dic[var_opt[i]] = VALS[i]
+
+    vv, vh = run_model(dic, models)
+
+    return vv, vh
 
 def fun_opt(VALS, var_opt, dic, models, pol):
 
-    # return(10.*np.log10(np.nansum(np.square(solve_fun(VALS)-dic['pol_value']))))
-    return(np.nansum(np.square(solve_fun(VALS, var_opt, dic, models, pol)-dic['pol_value'])))
+    if pol == 'vv':
+        return(np.nansum(np.square(solve_fun(VALS, var_opt, dic, models)[0]-dic['vv'])))
+    elif pol == 'vh':
+        return(np.nansum(np.square(solve_fun(VALS, var_opt, dic, models)[1]-dic['vh'])))
+    elif pol == 'vv_vh':
+        return(np.nansum(np.square((solve_fun(VALS, var_opt, dic, models)[0]-dic['vv'])/2+(solve_fun(VALS, var_opt, dic, models)[1]-dic['vh'])/2)))
 
 def data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_field, vwc_field, pol):
     n = np.int(np.floor(n/2))
@@ -56,10 +58,10 @@ def data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_f
     lai_field = field_data.filter(like='LAI')
     vwc_field = field_data.filter(like='VWC')
     vwcpro_field = field_data.filter(like='watercontentpro')
+    relativeorbit = field_data.filter(like='relativeorbit')
 
     vv_field = field_data.filter(like='sigma_sentinel_vv')
     vh_field = field_data.filter(like='sigma_sentinel_vh')
 
     pol_field = field_data.filter(like='sigma_sentinel_'+pol)
-    return field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field, vh_field, pol_field, vwcpro_field
-#-----------------------------------------------------------------
+    return field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field, vh_field, pol_field, relativeorbit, vwcpro_field

@@ -37,7 +37,7 @@ pol = 'vv'
 # pol = 'vh'
 
 # output path
-plot_output_path = '/media/tweiss/Work/z_check_data/'
+plot_output_path = '/media/tweiss/Work/z_paper_rt_model_comparison/'
 
 df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vv_field, vh_field, relativeorbit, vwcpro_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro, pol)
 
@@ -55,7 +55,7 @@ canopy_list = ['turbid_isotropic', 'water_cloud']
 ### option for time invariant or variant calibration of parameter
 #-------------------------------
 opt_mod = 'time invariant'
-# opt_mod = 'time variant'
+opt_mod = 'time variant'
 #---------------------------
 
 ### plot option: "single" or "all" modelcombination
@@ -153,7 +153,7 @@ for k in surface_list:
 
         if opt_mod == 'time invariant':
 
-            dic = {"mv":sm_field.values.flatten(), "C_hh":C_hh, "C_vv":C_vv, "D_hh":D_hh, "D_vv":D_vv, "C_hv":C_hv, "D_hv":D_hv, "s":s, "clay":clay, "sand":sand, "f":freq, "bulk":bulk, "l":l, "canopy":canopy, "d":height_field.values.flatten(), "V1":V1, "V2":V2, "A_hh":A_hh, "B_hh":B_hh, "A_vv":A_vv, "B_vv":B_vv, "A_hv":A_hv, "B_hv":B_hv, "lai":lai_field.values.flatten(), "vwc":vwc_field.values.flatten(), "pol_value":pol_field.values.flatten(), "theta":theta_field.values.flatten(), "omega": omega, "coef": coef, "vwcpro": vwcpro_field.values.flatten()}
+            dic = {"mv":sm_field.values.flatten(), "C_hh":C_hh, "C_vv":C_vv, "D_hh":D_hh, "D_vv":D_vv, "C_hv":C_hv, "D_hv":D_hv, "s":s, "clay":clay, "sand":sand, "f":freq, "bulk":bulk, "l":l, "canopy":canopy, "d":height_field.values.flatten(), "V1":V1, "V2":V2, "A_hh":A_hh, "B_hh":B_hh, "A_vv":A_vv, "B_vv":B_vv, "A_hv":A_hv, "B_hv":B_hv, "lai":lai_field.values.flatten(), "vwc":vwc_field.values.flatten(), "pol_value":pol_field.values.flatten(), "vv":vv_field.values.flatten(), "vh":vh_field.values.flatten(), "theta":theta_field.values.flatten(), "omega": omega, "coef": coef, "vwcpro": vwcpro_field.values.flatten()}
 
             if canopy == 'turbid_isotropic':
                 var_opt = ['coef']
@@ -185,9 +185,9 @@ for k in surface_list:
             for i in range(len(pol_field.values.flatten())-n+1):
 
                 if type(coef) == float:
-                    dic = {"mv":sm_field.values.flatten()[i:i+n], "C_hh":C_hh, "C_vv":C_vv, "D_hh":D_hh, "D_vv":D_vv, "C_hv":C_hv, "D_hv":D_hv, "V2":V2[i:i+n], "s":s, "clay":clay, "sand":sand, "f":freq, "bulk":bulk, "l":l, "canopy":canopy, "d":height_field.values.flatten()[i:i+n], "V1":V1[i:i+n], "A_hh":A_hh, "B_hh":B_hh, "A_vv":A_vv, "B_vv":B_vv, "A_hv":A_hv, "B_hv":B_hv, "lai":lai_field.values.flatten()[i:i+n], "vwc":vwc_field.values.flatten()[i:i+n], "pol_value":pol_field.values.flatten()[i:i+n], "theta":theta_field.values.flatten()[i:i+n], "omega": omega, "coef": coef, "vwcpro": vwcpro_field.values.flatten()[i:i+n]}
+                    dic = {"mv":sm_field.values.flatten()[i:i+n], "C_hh":C_hh, "C_vv":C_vv, "D_hh":D_hh, "D_vv":D_vv, "C_hv":C_hv, "D_hv":D_hv, "V2":V2[i:i+n], "s":s, "clay":clay, "sand":sand, "f":freq, "bulk":bulk, "l":l, "canopy":canopy, "d":height_field.values.flatten()[i:i+n], "V1":V1[i:i+n], "A_hh":A_hh, "B_hh":B_hh, "A_vv":A_vv, "B_vv":B_vv, "A_hv":A_hv, "B_hv":B_hv, "lai":lai_field.values.flatten()[i:i+n], "vwc":vwc_field.values.flatten()[i:i+n], "pol_value":pol_field.values.flatten()[i:i+n], "vv":vv_field.values.flatten()[i:i+n], "vh":vh_field.values.flatten()[i:i+n], "theta":theta_field.values.flatten()[i:i+n], "omega": omega, "coef": coef, "vwcpro": vwcpro_field.values.flatten()[i:i+n]}
                 else:
-                    dic = {"mv":sm_field.values.flatten()[i:i+n], "C_hh":C_hh, "C_vv":C_vv, "D_hh":D_hh, "D_vv":D_vv, "C_hv":C_hv, "D_hv":D_hv, "V2":V2[i:i+n], "s":s, "clay":clay, "sand":sand, "f":freq, "bulk":bulk, "l":l, "canopy":canopy, "d":height_field.values.flatten()[i:i+n], "V1":V1[i:i+n], "A_hh":A_hh, "B_hh":B_hh, "A_vv":A_vv, "B_vv":B_vv, "A_hv":A_hv, "B_hv":B_hv, "lai":lai_field.values.flatten()[i:i+n], "vwc":vwc_field.values.flatten()[i:i+n], "pol_value":pol_field.values.flatten()[i:i+n], "theta":theta_field.values.flatten()[i:i+n], "omega": omega, "coef": coef[i:i+n], "vwcpro": vwcpro_field.values.flatten()[i:i+n]}
+                    dic = {"mv":sm_field.values.flatten()[i:i+n], "C_hh":C_hh, "C_vv":C_vv, "D_hh":D_hh, "D_vv":D_vv, "C_hv":C_hv, "D_hv":D_hv, "V2":V2[i:i+n], "s":s, "clay":clay, "sand":sand, "f":freq, "bulk":bulk, "l":l, "canopy":canopy, "d":height_field.values.flatten()[i:i+n], "V1":V1[i:i+n], "A_hh":A_hh, "B_hh":B_hh, "A_vv":A_vv, "B_vv":B_vv, "A_hv":A_hv, "B_hv":B_hv, "lai":lai_field.values.flatten()[i:i+n], "vwc":vwc_field.values.flatten()[i:i+n], "pol_value":pol_field.values.flatten()[i:i+n], "vv":vv_field.values.flatten()[i:i+n], "vh":vh_field.values.flatten()[i:i+n], "theta":theta_field.values.flatten()[i:i+n], "omega": omega, "vwcpro": vwcpro_field.values.flatten()[i:i+n]}
 
                 # if canopy == 'turbid_isotropic' and surface == 'WaterCloud':
                 #     var_opt = ['coef', 'C_vv', 'D_vv', 'C_hv', 'D_hv']
@@ -264,7 +264,7 @@ for k in surface_list:
                 for j in range(len(res.x)):
                     aaa[j].append(res.x[j])
 
-            field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field, vh_field, pol_field, vwcpro_field = data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_field, vwc_field, pol)
+            field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field, vh_field, pol_field, relativeorbit, vwcpro_field = data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_field, vwc_field, pol)
             V1 = lai_field.values.flatten()
             # V1 = vwc_field.values.flatten()
             # V1 = lai_field.values.flatten() * vwcpro_field.values.flatten()/100
