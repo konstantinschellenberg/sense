@@ -12,144 +12,10 @@ from sense import model
 import scipy.stats
 from scipy.optimize import minimize
 import pdb
+from z_helper import *
+from z_optimization import *
 
 
-# Helper functions for statistical parameters
-#--------------------------------------------
-def rmse_prediction(predictions, targets):
-    """ calculation of RMSE """
-    return np.sqrt(np.nanmean((predictions - targets) ** 2))
-
-def linregress(predictions, targets):
-    """ Calculate a linear least-squares regression for two sets of measurements """
-    slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(predictions, targets)
-    return slope, intercept, r_value, p_value, std_err
-
-def read_mni_data(path, file_name, extention, field, sep=','):
-    """ read MNI campaign data """
-    df = pd.io.parsers.read_csv(os.path.join(path, file_name + extension), header=[0, 1], sep=sep)
-    df = df.set_index(pd.to_datetime(df[field]['date']))
-    df = df.drop(df.filter(like='date'), axis=1)
-    return df
-
-def read_agrometeo(path, file_name, extentio, sep=';', decimal=','):
-    """ read agro-meteorological station (hourly data) """
-    df = pd.read_csv(os.path.join(path, file_name + extension), sep=sep, decimal=decimal)
-    df['SUM_NN050'] = df['SUM_NN050'].str.replace(',','.')
-    df['SUM_NN050'] = df['SUM_NN050'].str.replace('-','0').astype(float)
-
-    df['date'] = df['Tag'] + ' ' + df['Stunde']
-
-    df = df.set_index(pd.to_datetime(df['date'], format='%d.%m.%Y %H:%S'))
-    return df
-
-def filter_relativorbit(data, field, orbit1, orbit2=None, orbit3=None, orbit4=None):
-    """ data filter for relativ orbits """
-    output = data[[(check == orbit1 or check == orbit2 or check == orbit3 or check == orbit4) for check in data[(field,'relativeorbit')]]]
-    return output
-
-def smooth(x,window_len=11,window='hanning'):
-        if x.ndim != 1:
-                raise ValueError #, "smooth only accepts 1 dimension arrays."
-        if x.size < window_len:
-                raise ValueError #, "Input vector needs to be bigger than window size."
-        if window_len<3:
-                return x
-        if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-                raise ValueError #, "Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
-        s=np.r_[2*x[0]-x[window_len-1::-1],x,2*x[-1]-x[-1:-window_len:-1]]
-        if window == 'flat': #moving average
-                w=np.ones(window_len,'d')
-        else:
-                w=eval('np.'+window+'(window_len)')
-        y=np.convolve(w/w.sum(),s,mode='same')
-        return y[window_len:-window_len+1]
-
-def read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro):
-    # Read MNI data
-    df = read_mni_data(path, file_name, extension, field)
-
-    # Read agro-meteorological station
-    df_agro = read_agrometeo(path_agro, file_name_agro, extension_agro)
-
-    # filter for field
-    field_data = df.filter(like=field)
-
-    # filter for relativorbit
-    field_data_orbit = filter_relativorbit(field_data, field, 95, 168)
-    # field_data = field_data_orbit
-
-    # get rid of NaN values
-    parameter_nan = 'LAI'
-    field_data = field_data[~np.isnan(field_data.filter(like=parameter_nan).values)]
-
-    # available auxiliary data
-    theta_field = np.deg2rad(field_data.filter(like='theta'))
-    # theta_field[:] = 45
-    sm_field = field_data.filter(like='SM')
-    height_field = field_data.filter(like='Height')/100
-    lai_field = field_data.filter(like='LAI')
-    vwc_field = field_data.filter(like='VWC')
-    vwcpro_field = field_data.filter(like='watercontentpro')
-    pol_field = field_data.filter(like='sigma_sentinel_'+pol)
-    return df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vwcpro_field
-
-### Optimization ###
-#-----------------------------------------------------------------
-def solve_fun(VALS):
-
-    for i in range(len(var_opt)):
-        dic[var_opt[i]] = VALS[i]
-
-    ke = dic['coef'] * np.sqrt(dic['lai'])
-    # ke = dic['coef'] * np.sqrt(dic['lai']*dic['vwcpro']/100)
-    # # ke = dic['coef'] * np.sqrt(dic['lai'])*(dic['vwcpro']/100)**4
-    # ke = dic['coef'] * (dic['vwcpro']/100)**3
-    # ke = dic['coef'] * (dic['vwcpro']/100)**3 * dic['d']
-    # # ke = dic['coef'] * np.sqrt(dic['vwc'])
-    # ke = dic['coef'] * np.sqrt(dic['vwc']/dic['d'])
-
-    # ke=1
-    dic['ke'] = ke
-
-    # surface
-    soil = Soil(mv=dic['mv'], C_hh=dic['C_hh'], C_vv=dic['C_vv'], D_hh=dic['D_hh'], D_vv=dic['D_vv'], C_hv=dic['C_hv'], D_hv=dic['D_hv'], V2=dic['V2'], s=dic['s'], clay=dic['clay'], sand=dic['sand'], f=dic['f'], bulk=dic['bulk'], l=dic['l'])
-
-    # canopy
-    can = OneLayer(canopy=dic['canopy'], ke_h=dic['ke'], ke_v=dic['ke'], d=dic['d'], ks_h = dic['omega']*dic['ke'], ks_v = dic['omega']*dic['ke'], V1=dic['V1'], V2=dic['V2'], A_hh=dic['A_hh'], B_hh=dic['B_hh'], A_vv=dic['A_vv'], B_vv=dic['B_vv'], A_hv=dic['A_hv'], B_hv=dic['B_hv'])
-
-    S = model.RTModel(surface=soil, canopy=can, models=models, theta=dic['theta'], freq=dic['f'])
-    S.sigma0()
-
-    return S.__dict__['stot'][pol[::-1]]
-
-def fun_opt(VALS):
-
-
-    # return(10.*np.log10(np.nansum(np.square(solve_fun(VALS)-dic['pol_value']))))
-    return(np.nansum(np.square(solve_fun(VALS)-dic['pol_value'])))
-
-def data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_field, vwc_field, pol):
-    n = np.int(np.floor(n/2))
-
-    if n > 0:
-        field_data = field_data.drop(field_data.index[-n:])
-        field_data = field_data.drop(field_data.index[0:n])
-        theta_field = theta_field.drop(theta_field.index[-n:])
-        theta_field = theta_field.drop(theta_field.index[0:n])
-
-    sm_field = field_data.filter(like='SM')
-    height_field = field_data.filter(like='Height')/100
-    lai_field = field_data.filter(like='LAI')
-    vwc_field = field_data.filter(like='VWC')
-    vwcpro_field = field_data.filter(like='watercontentpro')
-
-    vv_field = field_data.filter(like='sigma_sentinel_vv')
-    vh_field = field_data.filter(like='sigma_sentinel_vh')
-
-    pol_field = field_data.filter(like='sigma_sentinel_'+pol)
-    return field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field, vh_field, pol_field, vwcpro_field
-#-----------------------------------------------------------------
 
 ### Data preparation ###
 #-----------------------------------------------------------------
@@ -163,7 +29,7 @@ file_name_agro = 'Eichenried_01012017_31122017_hourly'
 extension_agro = '.csv'
 
 field = '508_high'
-# field = '542_med'
+
 field_plot = []
 # field_plot = ['542_high','542_low','542_med']
 # field_plot = ['301_high','301_low','301_med']
@@ -171,11 +37,9 @@ pol = 'vv'
 # pol = 'vh'
 
 # output path
-plot_output_path = '/media/tweiss/Daten/plots/paper/new/'
+plot_output_path = '/media/tweiss/Work/z_check_data/'
 
-df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vwcpro_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro)
-
-#-----------------------------------------------------------------
+df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vv_field, vh_field, relativeorbit, vwcpro_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro, pol)
 
 ### Run SenSe module
 #-----------------------------------------------------------------
@@ -183,23 +47,15 @@ df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, 
 #-----------------
 
 surface_list = ['Oh92', 'Oh04', 'Dubois95', 'WaterCloud', 'I2EM']
-# surface_list = ['Oh92', 'Oh04', 'WaterCloud']
-# surface_list = ['WaterCloud']
 canopy_list = ['turbid_isotropic', 'water_cloud']
-# canopy_list = ['water_cloud']
 
 # surface_list = ['Oh92']
-# surface_list = ['Oh04']
-# surface_list = ['Dubois95']
-# surface_list = ['WaterCloud']
-# surface_list = ['I2EM']
-# canopy_list = ['turbid_isotropic']
 # canopy_list = ['water_cloud']
 
 ### option for time invariant or variant calibration of parameter
 #-------------------------------
 opt_mod = 'time invariant'
-opt_mod = 'time variant'
+# opt_mod = 'time variant'
 #---------------------------
 
 ### plot option: "single" or "all" modelcombination
@@ -246,7 +102,7 @@ colors = [colormap(jj) for jj in np.linspace(0.35, 1., 3)]
 for k in surface_list:
 
     for kk in canopy_list:
-        df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vwcpro_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro)
+        df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vv_field, vh_field, relativeorbit, vwcpro_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro, pol)
         freq = 5.405
         clay = 0.08
         sand = 0.12
@@ -317,9 +173,9 @@ for k in surface_list:
 
             method = 'L-BFGS-B'
 
-            res = minimize(fun_opt,guess,bounds=bounds, method=method)
+            res = minimize(fun_opt,guess,args=(var_opt, dic, models, pol),bounds=bounds, method=method)
 
-            fun_opt(res.x)
+            fun_opt(res.x, var_opt, dic, models, pol)
             aaa = res.x
 
         if opt_mod == 'time variant':
@@ -401,9 +257,9 @@ for k in surface_list:
                 method = 'L-BFGS-B'
                 # method = 'trust-exact'
 
-                res = minimize(fun_opt,guess,bounds=bounds, method=method)
+                res = minimize(fun_opt,guess,args=(var_opt, dic, models, pol),bounds=bounds, method=method)
 
-                fun_opt(res.x)
+                fun_opt(res.x, var_opt, dic, models, pol)
 
                 for j in range(len(res.x)):
                     aaa[j].append(res.x[j])
@@ -514,7 +370,7 @@ for k in surface_list:
                     colors = ['ks', 'ys', 'ms', 'rs']
 
                     for field in field_plot:
-                        df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vwcpro_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro)
+                        df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vv_field, vh_field, relativeorbit, vwcpro_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro, pol)
                         field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field, vh_field, pol_field, vwcpro_field = data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_field, vwc_field, pol)
 
                         soil = Soil(mv=sm_field.values.flatten(), C_hh=np.array(C_hh), C_vv=np.array(C_vv), D_hh=np.array(D_hh), D_vv=np.array(D_vv), C_hv=np.array(C_hv), D_hv=np.array(D_hv), s=s, clay=clay, sand=sand, f=freq, bulk=bulk, l=l)
@@ -549,7 +405,7 @@ for k in surface_list:
                 colors = ['orange', 'yellow', 'green', 'red']
 
                 for field in field_plot:
-                    df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vwcpro_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro)
+                    df, df_agro, field_data, field_data_orbit, theta_field, sm_field, height_field, lai_field, vwc_field, pol_field, vv_field, vh_field, relativeorbit, vwcpro_field = read_data(path, file_name, extension, field, path_agro, file_name_agro, extension_agro, pol)
                     field_data, theta_field, sm_field, height_field, lai_field, vwc_field, vv_field, vh_field, pol_field,vwcpro_field = data_optimized_run(n, field_data, theta_field, sm_field, height_field, lai_field, vwc_field, pol)
 
                     soil = Soil(mv=sm_field.values.flatten(), C_hh=np.array(C_hh), C_vv=np.array(C_vv), D_hh=np.array(D_hh), D_vv=np.array(D_vv), C_hv=np.array(C_hv), D_hv=np.array(D_hv), s=s, clay=clay, sand=sand, f=freq, bulk=bulk, l=l)
@@ -601,8 +457,12 @@ else:
     # plt.title(field)
 
 if plot == 'all':
-    # plt.show()
-    plt.savefig(plot_output_path+pol+'_all_'+opt_mod, bbox_inches = 'tight')
+    if opt_mod == 'time variant':
+        opt_mod2 = 'time_variant'
+    elif opt_mod == 'time invariant':
+        opt_mod2 = 'time_invariant'
+
+    plt.savefig(plot_output_path+pol+'_all_'+opt_mod2, bbox_inches = 'tight')
 
 if plot == 'single':
     if style == 'scatterplot':
