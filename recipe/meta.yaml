@@ -1,0 +1,22 @@
+about:
+  summary: "SenSE"
+  home: https://github.com/McWhity/sense
+
+package:
+  name: sense
+  version: "0.1"
+
+source:
+  git_rev: 0.1
+  git_url: "https://github.com/McWhity/sense.git"
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
