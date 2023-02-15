@@ -24,9 +24,9 @@ The project leading to this application has received funding from the
 European Union’s Horizon 2020 research and innovation program
 under grant agreement No 687320.
 
-.. |buildstatus| image:: https://travis-ci.com/multiply-org/sar-pre-processing.svg?branch=getting_to_release
-    :target: https://travis-ci.org/multiply-org/sar-pre-processing
+.. |buildstatus| image:: https://travis-ci.com/McWhity/sense.svg?branch=dev
+    :target: https://travis-ci.org/McWhity/sense
 
-.. |docstatus| image:: https://readthedocs.org/projects/multiply-sar-pre-processing/badge/?version=latest
-    :target: https://multiply-sar-pre-processing.readthedocs.io/en/getting_to_release/?badge=getting_to_release
+.. |docstatus| image:: https://readthedocs.org/projects/McWhity/badge/?version=latest
+    :target: https://sense.readthedocs.io/en/dev/?badge=getting_to_release
     :alt: Documentation Status
