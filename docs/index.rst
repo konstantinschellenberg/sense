@@ -1,5 +1,5 @@
-MULTIPLY - SenSARP
-=============================
+SenSE: Community SAR ScattEring model
+======================================
 
 |buildstatus| |docstatus|
 

@@ -18,7 +18,7 @@ Please contribute using `Github Flow <https://guides.github.com/introduction/flo
 
 Reporting bugs
 ~~~~~~~~~~~~~~~
-If you find a bug in SenSARP, please open an new `issue <https://github.com/McWhity/sense/issues/new>`_ and tag it "bug".
+If you find a bug in SenSE, please open an new `issue <https://github.com/McWhity/sense/issues/new>`_ and tag it "bug".
 
 Suggesting enhancements
 ~~~~~~~~~~~~~~~~~~~~~~~~~

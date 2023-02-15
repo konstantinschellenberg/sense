@@ -1,5 +1,5 @@
 # conda env create|update -f environment.yml
-name: sensarp-env
+name: SenSE
 
 channels:
   - conda-forge
