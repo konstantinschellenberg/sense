@@ -1,4 +1,4 @@
----
+<!-- ---
 title: 'SenSE: Community SAR ScattEring model'
 tags:
   - radiative transfer
@@ -41,7 +41,7 @@ bibliography: paper.bib
 
 The project leading to this application has received funding from the European Union’s Horizon 2020 research and innovation program under Grant Agreement No. 687320.
 We would like to thank Ben Müller, Thomas Ramsauer and Philip Marzahn for guiding discussions that lead to this publication.
-<!-- for providing comments on the manuscript -->
 The author also wishes to thank the reviewers and editors for their efforts and for their helpful comments to improve this paper and the software package.
 
 # References
+ -->
