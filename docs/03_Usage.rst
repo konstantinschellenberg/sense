@@ -7,5 +7,5 @@ Usage
     ./notebooks/Oh04.ipynb
     ./notebooks/I2EM.ipynb
     ./notebooks/Dubois95_SSRT.ipynb
-    ./notebooks/sm_retrieval.ipyb
+    ./notebooks/sm_retrieval.ipynb
 

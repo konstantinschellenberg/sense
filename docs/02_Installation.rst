@@ -52,7 +52,5 @@ To install for development, use::
 Further information
 -------------------
 
-.. literalinclude:: ./environment.yml
-
 Please see the `environment file <https://github.com/McWhity/sense/blob/master/environment.yml>`_ for a list of all installed dependencies during the installation process.
 
