@@ -1,21 +1,35 @@
+.. _Introduction:
+
 Introduction
 ============
-Scope
------
 
 
+Statement of need
+------------------
 
 
-Structure of this documentation
--------------------------------
-.. code::
+Getting Started
+------------------
+Please find instructions on how to download and install SenSE in the :ref:`Installation` section.
 
-    Need to be done !!!
+Support, contributing and testing
+----------------------------------
+Please contribute using `Github Flow <https://guides.github.com/introduction/flow/>`_. Create a branch, add commits, and `open a pull request <https://github.com/McWhity/sense/issues/new>`_.
 
-    This documentation gives a detailed
+Reporting bugs
+~~~~~~~~~~~~~~~
+If you find a bug in SenSARP, please open an new `issue <https://github.com/McWhity/sense/issues/new>`_ and tag it "bug".
 
-    The documentation is organised in ... main sections.
-        - Section
-        - Section
-        - Section
+Suggesting enhancements
+~~~~~~~~~~~~~~~
+If you want to suggest a new feature or an improvement of a current feature, you can submit this on the `issue tracker <https://github.com/McWhity/sense/issues/new>`_ and tag it "enhancement".
+
+Testing
+~~~~~~~~~~~~~~~
+The package is currently tested for Python >= 3.6 on Unix-like systems.
+To run unit tests, execute the following line from the root of the repository:
+
+.. code:: bash
+
+   pytest
 

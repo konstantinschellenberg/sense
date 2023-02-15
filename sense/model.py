@@ -7,7 +7,7 @@ from . surface import Oh92, Oh04, Dubois95, WaterCloudSurface, I2EM
 from . util import f2lam
 from . scatterer import ScatIso, ScatRayleigh
 from . core import Reflectivity
-import pdb
+
 class Model(object):
     def __init__(self, **kwargs):
         self.theta = kwargs.get('theta', None)

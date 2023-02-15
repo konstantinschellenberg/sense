@@ -1,0 +1,9 @@
+sphinxcontrib-bibtex==2.3.0
+pytest>=4.6
+
+matplotlib
+scipy
+future
+numba
+numpy>=1.18,<1.24
+
