@@ -1,7 +1,7 @@
 .. _Introduction:
 
 Introduction
-============
+==============
 
 
 Statement of need
@@ -21,7 +21,7 @@ Reporting bugs
 If you find a bug in SenSARP, please open an new `issue <https://github.com/McWhity/sense/issues/new>`_ and tag it "bug".
 
 Suggesting enhancements
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 If you want to suggest a new feature or an improvement of a current feature, you can submit this on the `issue tracker <https://github.com/McWhity/sense/issues/new>`_ and tag it "enhancement".
 
 Testing
