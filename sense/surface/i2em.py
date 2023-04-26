@@ -15,12 +15,12 @@ import math
 from scipy.integrate import dblquad
 from past.builtins import range
 
-from numba import jit
+from numba import njit, jit
 
 import pdb
 
 
-@jit(cache=True, nopython=True)
+@njit(cache=True)
 def _calc_roughness_spectra_matrix(nx, ny, kl2, nspec, s, acf_type_id):
     """
     calculate roughness spectra
@@ -629,7 +629,7 @@ class Roughness(object):
         assert self.freq is not None
 
 
-@jit(cache=False, nopython=True)
+@njit(cache=False)
 def _calc_wn_matrix_gauss(rx, ry, nspec, kl2, s):
     wn = np.zeros(nspec)
     for i in range(nspec):
@@ -637,7 +637,7 @@ def _calc_wn_matrix_gauss(rx, ry, nspec, kl2, s):
     return wn
 
 
-@jit(cache=False, nopython=True)
+@njit(cache=False)
 def _calc_wm_matrix_gauss(rx, ry, nspec, kl2, s):
     wm = np.zeros(nspec)
     for i in range(nspec):
@@ -666,7 +666,7 @@ class GaussianSpectrum(Roughness):
         return _calc_wm_matrix_gauss(rx, ry, nspec, self._kl2, self._s)
 
 
-@jit(cache=True, nopython=True)
+@njit(cache=True)
 def _calc_wn_matrix_exp(rx, ry, nspec, kl2, s):
     wn = np.zeros(nspec)
     for i in range(nspec):
@@ -674,7 +674,7 @@ def _calc_wn_matrix_exp(rx, ry, nspec, kl2, s):
     return wn
 
 
-@jit(cache=True, nopython=True)
+@njit(cache=True)
 def _calc_wm_matrix_exp(rx, ry, nspec, kl2, s):
     wm = np.zeros(nspec)
     for i in range(nspec):
