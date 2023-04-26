@@ -14,7 +14,7 @@ class Soil(object):
         surface: string
             name of used RT-model for surface contribution
         eps : complex
-            relative permitivity, if this is not given, then mv needs to be given
+            relative permittivity, if this is not given, then mv needs to be given
         s : float
             surface rms height [m]
         mv : float
@@ -48,6 +48,8 @@ class Soil(object):
         self.debye = kwargs.get('debye', None)
         self.dc_model = kwargs.get('dc_model', 'Dobson85')
         self._check()
+        
+        # not implemented
         if self.eps is not None:
             self._convert_eps2mv()
         if self.mv is not None:
@@ -56,7 +58,7 @@ class Soil(object):
 
         if self.surface != 'WaterCloud':
             # wavenumber
-            self.k = 2.*np.pi / f2lam(self.f)  # note that wavenumber is in meter and NOT in cm!
+            self.k = 2. * np.pi / f2lam(self.f)  # note that wavenumber is in meter and NOT in cm!
 
             # roughness parameters
             self.ks = self.s*self.k
@@ -99,9 +101,10 @@ class Soil(object):
 
 
         """
-        assert self.eps is not None, 'Currently cnversion not implemented yet; you need to provide the DC directly!'
+        assert self.eps is not None, 'Currently conversion not implemented yet; you need to provide the DC directly!'
 
     def _check(self):
+        assert self.surface is not None, 'Specify the soil model'
         if self.acl is not None:
             assert self.acl in ['G','E'], 'Invalid form of autocorrelation function specified'
         if self.surface != 'WaterCloud':
