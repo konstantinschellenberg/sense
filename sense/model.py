@@ -12,38 +12,37 @@ from .core import Reflectivity
 class Model(object):
     def __init__(self, **kwargs):
         self.theta = kwargs.get('theta', None)
-        
         self._check1()
     
     def _check1(self):
         assert self.theta is not None, 'ERROR: no incidence angle was specified!'
     
-    def sigma0(self, **kwargs):
-        """
-        calculate sigma
-
-        Parameters
-        ----------
-        dB : bool
-            return results in decibel
-        pol : list
-            list with polarizations pq
-            whereas p=receive, q=transmit
-            p,g can be either H or V
-        """
-        
-        self.dB = kwargs.get('dB', False)
-        self.pol = kwargs.get('pol', [])
-        self._check_pol()
-        
-        if self.dB:
-            assert False, 'Not supported for dictionaries yet!'
-            return 10. * np.log10(self._sigma0())
-        else:
-            return self._sigma0()
-    
-    def _sigma0(self, **kwargs):
-        assert False, 'routine should be implemented in child class!'
+    # def sigma0(self, **kwargs):
+    #     """
+    #     calculate sigma
+    #
+    #     Parameters
+    #     ----------
+    #     dB : bool
+    #         return results in decibel
+    #     pol : list
+    #         list with polarizations pq
+    #         whereas p=receive, q=transmit
+    #         p,g can be either H or V
+    #     """
+    #
+    #     self.dB = kwargs.get('dB', False)
+    #     self.pol = kwargs.get('pol', [])
+    #     self._check_pol()
+    #
+    #     if self.dB:
+    #         assert False, 'Not supported for dictionaries yet!'
+    #         return 10. * np.log10(self._sigma0())
+    #     else:
+    #         return self._sigma0()
+    #
+    # def _sigma0(self, **kwargs):
+    #     assert False, 'routine should be implemented in child class!'
     
     def _check_pol(self):
         if len(self.pol) == 0:
@@ -84,10 +83,14 @@ class RTModel(Model):
         assert self.freq is not None
         
         for k in ['surface', 'canopy']:
-            assert k in self.models.keys()  # check that all models have been specified
-        if self.surface.surface != 'WaterCloud':
-            assert self.freq == self.surface.f, "Different frequencies in model and soil definition"
-            # check that frequencies are the same!
+            # check that all models have been specified
+            # checks with there are dict entries
+            assert k in self.models.keys()
+            
+        if self.surface != 'WaterCloud':
+            if hasattr(self.surface, 'surface'):
+                # check that frequencies are the same!
+                assert self.freq == self.surface.f, "Different frequencies in model and soil definition"
     
     def _sigma0(self):
         """
@@ -130,7 +133,7 @@ class RTModel(Model):
         # return np.nansum(np.array([self.s0g[k], self.s0c[k], self.s0gcg[k], self.s0cgt[k]]))
         if (self.models['canopy'] == 'turbid_isotropic') or (self.models['canopy'] == 'turbid_rayleigh'):
             return np.array(self.s0g[k] + self.s0c[k] + self.s0gcg[k] + self.s0cgt[k])
-        elif (self.models['canopy'] == 'water_cloud'):
+        elif self.models['canopy'] == 'water_cloud':
             return np.array(self.s0g[k] + self.s0c[k])
         else:
             assert False, 'unknown canopy model!'
@@ -142,7 +145,6 @@ class Ground(object):
     sigma_pq
     where p is receive and q is transmit polarization
     """
-    
     def __init__(self, S, C, RT_s, RT_c, theta=None, freq=None):
         """
         calculate the attenuated ground contribution
@@ -151,7 +153,7 @@ class Ground(object):
         Parameters
         ----------
         S : object
-            descibing the surface properties
+            describing the surface properties
         C : object
             describing the canopy properties
         RT_s : str
@@ -236,7 +238,8 @@ class Ground(object):
         R = Reflectivity(self.S.eps, self.theta)
         self.rho_v = R.v * np.exp(-4. * np.cos(self.theta) ** 2. * (self.S.ks ** 2.))
         self.rho_h = R.h * np.exp(-4. * np.cos(self.theta) ** 2. * (self.S.ks ** 2.))
-        # implementation in matlab code and book of Ulaby. (Email response from Ulaby: Don't know why he didn't use the roughness correction. He actually would use the roughness corrected version!!)
+        # implementation in matlab code and book of Ulaby. (Email response from Ulaby: Don't know why he didn't use the
+        # roughness correction. He actually would use the roughness corrected version!!)
         # self.rho_v = R.v
         # self.rho_h = R.h
     
@@ -263,7 +266,7 @@ class Ground(object):
         coherent : bool
             do coherent calculation for co-pol calculations
         """
-        assert coherent is not None, 'ERROR: please specify explicity if coherent calculations should be made.'
+        assert coherent is not None, 'ERROR: please explicitly specify if coherent calculations should be made.'
         if coherent:
             n = 2.
         else:

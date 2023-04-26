@@ -9,4 +9,4 @@ def f2lam(f):
     given the frequency in GHz,
     return the wavelength [m]
     """
-    return c0/(f*1.E9)
+    return c0 / (f*1.E9)

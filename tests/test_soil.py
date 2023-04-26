@@ -19,7 +19,7 @@ class TestSoil(unittest.TestCase):
         pass
     
     def test_init(self):
-        S = Soil(s=self.s,f=self.f, eps=self.eps)
+        S = Soil(surface="somemodel", s=self.s,f=self.f, eps=self.eps)
         self.assertEqual(S.ks, S.k*S.s)
 
 

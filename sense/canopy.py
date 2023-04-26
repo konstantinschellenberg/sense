@@ -2,8 +2,6 @@
 Specification of canopies
 """
 
-# todo: AssertionError in pytest
-
 class Canopy(object):
     def __init__(self, **kwargs):
         self.d = kwargs.get('d', None)
@@ -17,9 +15,11 @@ class OneLayer(Canopy):
     define a homogeneous one layer canopy
     water_cloud and turbid_isotropic/turbid_rayleigh
     """
+    
     def __init__(self, **kwargs):
         super(OneLayer, self).__init__(**kwargs)
         self.canopy = kwargs.get('canopy', None)
+        
         if self.canopy == 'water_cloud':
             self.A_hh = kwargs.get('A_hh', None)
             self.B_hh = kwargs.get('B_hh', None)
@@ -37,6 +37,7 @@ class OneLayer(Canopy):
             self.V2 = kwargs.get('V2', None)
             assert self.V1 is not None
             assert self.V2 is not None
+            
         elif (self.canopy == 'turbid_isotropic') or (self.canopy == 'turbid_rayleigh'):
             self.ke_h = kwargs.get('ke_h', None)
             self.ke_v = kwargs.get('ke_v', None)
