@@ -9,33 +9,19 @@ from sense.soil import Soil
 from sense.canopy import OneLayer
 import matplotlib.pyplot as plt
 
+def run_models():
 
-def main():
-    
-    # -----------------------------------
-    # theta
-    theta_deg = np.arange(0., 70.)
-    theta = np.deg2rad(theta_deg)
-    
-    # -----------------------------------
-    # model selection
-    
-    models = {'surface': 'Dubois95', 'canopy': 'turbid_rayleigh'}
-    pol = 'vv'
-    
     # -----------------------------------
     # settings
     
     # soil model parameters
-    f = 5.405  # GHz
-    # lam = f2lam(f)  # m
     s = 0.0015  # m
     eps = 15. - 4.0j
+    # lam = f2lam(f)  # m
     
     # -----------------------------------
     # canopy model parameters (short alfalfa)
     
-    omega = 0.1
     d = 0.17
     tau = 2.5
     ke = tau / d
@@ -46,33 +32,43 @@ def main():
     # Model initialization
     
     # Soil model
-    S = Soil(f=f, s=s, eps=eps)
+    S = Soil(surface=models["surface"], f=f, s=s, eps=eps)
     
     # Canopy model
-    C = OneLayer(ke_h=ke, ke_v=ke, d=d, ks_v=ks, ks_h=ks, canopy=models['canopy'])
+    C = OneLayer(canopy=models['canopy'], ke_h=ke, ke_v=ke, d=d, ks_v=ks, ks_h=ks)
     
     # Combined Model initialization
-    RT = RTModel(theta=theta, models=models, surface=S, canopy=C, freq=f)
+    RT1 = RTModel(theta=theta, models=models, surface=S, canopy=C, freq=f)
+    RT1.sigma0(pol=["VV"])
+    RT1.pol
+    RT1._sigma0()
+    
+    # todo: Throws RuntimeWarning for hv pol
     
     # -----------------------------------
-    # Run RT model
-    RT.sigma0()
-    back_short = RT.stot[pol]
-    # tall alfalfa
+    # canopy model parameters (long alfalfa)
+    
     d = 0.55
     tau = 0.45
     ke = tau / d
     omega = 0.175
     ks = omega * ke
-    S = Soil(f=f, s=s, eps=eps)
-    C = OneLayer(ke_h=ke, ke_v=ke, d=d, ks_v=ks, ks_h=ks, canopy=models['canopy'])
-    RT = RTModel(theta=theta, models=models, surface=S, canopy=C, freq=f)
-    RT.sigma0()
+    
+    # -----------------------------------
+    # Model initialization
+    
+    S = Soil(surface=models["surface"], f=f, s=s, eps=eps)
+    C = OneLayer(canopy=models['canopy'], ke_h=ke, ke_v=ke, d=d, ks_v=ks, ks_h=ks)
+    RT2 = RTModel(theta=theta, models=models, surface=S, canopy=C, freq=f)
+    RT2.sigma0(pol=["VV"])
+
+    # -----------------------------------
+    # viz
     # plot first part
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(theta_deg, 10. * np.log10(back_short), label='short', color='b')
-    ax.plot(theta_deg, 10. * np.log10(RT.stot[pol]), label='tall', color='r')
+    ax.plot(theta_deg, 10. * np.log10(RT1.stot[pol]), label='short', color='b')
+    ax.plot(theta_deg, 10. * np.log10(RT2.stot[pol]), label='tall', color='r')
     
     ax.legend()
     ax.set_title('Fig 11-15 Alfalfa')
@@ -88,4 +84,19 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    
+    # -----------------------------------
+    # theta space
+    theta_deg = np.arange(0., 70.)
+    theta = np.deg2rad(theta_deg)
+    
+    # wavelength
+    f = 5.405  # GHz
+
+    # -----------------------------------
+    # model selection
+    
+    models = {'surface': 'Dubois95', 'canopy': 'turbid_rayleigh'}
+    pol = 'vv'
+    
+    run_models()
