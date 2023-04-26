@@ -62,11 +62,11 @@ class TestSingle(unittest.TestCase):
         omega=0.5
         soil = Soil(eps=eps, f=5., s=0.02)
         can = OneLayer(ke_h=ke, ke_v=ke, d=d, ks_h = omega*ke, ks_v = omega*ke)
-        S = model.SingleScatRT(surface=soil, canopy=can, models=models, theta=theta, freq=self.freq)
+        S = model.RTModel(surface=soil, canopy=can, models=models, theta=theta, freq=self.freq)
         S.sigma0()
 
         models = {'surface': 'Dubois95', 'canopy': stype}
-        S = model.SingleScatRT(surface=soil, canopy=can, models=models, theta=theta, freq=self.freq)
+        S = model.RTModel(surface=soil, canopy=can, models=models, theta=theta, freq=self.freq)
         S.sigma0()
 
         # compare results against results obtained through Eq. 11.23 (analytic way)
@@ -87,7 +87,7 @@ class TestSingle(unittest.TestCase):
 
         pol = 'hh'
         self.assertEqual(len(ref_hh), len(S.stot[pol]))
-        for i in xrange(len(ref_hh)):
+        for i in range(len(ref_hh)):
             #print np.rad2deg(theta[i]), ref_hh[i]
             if np.isnan(ref_hh[i]):
                 self.assertTrue(np.isnan(S.stot[pol][i]))
@@ -108,7 +108,7 @@ class TestSingle(unittest.TestCase):
 
         pol = 'vv'
         self.assertEqual(len(ref_vv), len(S.stot[pol]))
-        for i in xrange(len(ref_vv)):
+        for i in range(len(ref_vv)):
             #print theta[i], ref_vv[i]
             if np.isnan(ref_vv[i]):
                 self.assertTrue(np.isnan(S.stot[pol][i]))

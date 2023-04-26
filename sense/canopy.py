@@ -12,8 +12,6 @@ class Canopy(object):
     def _check(self):
         assert self.d is not None, 'Vegetation height needs to be given'
 
-
-
 class OneLayer(Canopy):
     """
     define a homogeneous one layer canopy
