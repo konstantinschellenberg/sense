@@ -65,7 +65,7 @@ RT.sigma0()
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-ax.plot(theta_deg, 10.*np.log10(RT.stot[pol][0]), label='STOT', color='k')
+ax.plot(theta_deg, 10.*np.log10(RT.stot[pol]), label='STOT', color='k')
 ax.plot(theta_deg, 10.*np.log10(RT.s0g[pol]), label='SIGGROUND', color='r')
 ax.plot(theta_deg, 10.*np.log10(RT.s0c[pol]), label='SIG can', color='b')
 ax.plot(theta_deg, 10.*np.log10(RT.s0cgt[pol]), label='SIG can ground', color='g')

@@ -58,7 +58,7 @@ RT.sigma0()
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.plot(theta_deg, 10.*np.log10(RT.stot[pol][0]), label='short', color='b')
+ax.plot(theta_deg, 10.*np.log10(RT.stot[pol]), label='short', color='b')
 
 # tall alfalfa
 d = 0.55
@@ -71,7 +71,7 @@ C = OneLayer(ke_h=ke, ke_v=ke, d=d, ks_v=ks, ks_h=ks, canopy=models['canopy'])
 RT = RTModel(theta=theta, models=models, surface=S, canopy=C, freq=f)
 RT.sigma0()
 
-ax.plot(theta_deg, 10.*np.log10(RT.stot[pol][0]), label='tall', color='r')
+ax.plot(theta_deg, 10.*np.log10(RT.stot[pol]), label='tall', color='r')
 
 ax.legend()
 ax.set_title('Fig 11-15 Alfalfa')

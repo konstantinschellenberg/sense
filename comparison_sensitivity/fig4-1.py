@@ -8,7 +8,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__)) + os.sep + '..')
+# sys.path.append(os.path.abspath(os.path.dirname(__file__)) + os.sep + '..')
 from sense.dielectric import Dobson85
 
 

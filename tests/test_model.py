@@ -14,6 +14,7 @@ def db(x):
     return 10.*np.log10(x)
 
 
+# todo: TEST FAILESD. SingleScatRT not existent
 
 class TestModel(unittest.TestCase):
     def test_init(self):
@@ -97,7 +98,7 @@ class TestSingle(unittest.TestCase):
 
                 # gcg
                 xx=3.*n*omega*ke*d*RHO_h[i]*trans[i]**2.
-                print np.rad2deg(theta[i]), S.s0gcg[pol][i],xx, S.s0gcg[pol][i]/xx
+                print(np.rad2deg(theta[i]), S.s0gcg[pol][i],xx, S.s0gcg[pol][i]/xx)
                 self.assertAlmostEqual(S.s0cgt[pol][i],xx) 
 
 
